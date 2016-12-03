@@ -4,6 +4,8 @@
 
 (require 'macro)
 
+(define *sort-function* string<?)
+
 (define-syntax def-or
   (syntax-rules ()
     ((def-or variable default-datum)
@@ -18,11 +20,18 @@
 
   (let ((leaf? #t)
 	(parent #f)
-	(keys '())			; OPTIMIZE: make these arrays
+	(keys '())
 	(vals '()))
 
     (define (insert key value)
-      
+      (if (< (length keys) max-degree)
+	  (call-with-values (lambda () bisect keys key)
+	    (lambda (all left right)
+	      (set! keys all)
+	      'not-finished-here
+	      ))
+
+	  (error "not implemented")))
 
     (define (node message . args)
       ;; This function will be returned. It is a closure. "Messages"
@@ -43,3 +52,34 @@
 
 
     node))
+
+(define (bisect sort-function lst pivot)
+  ;; splits lst; returns `(,@lst ,pivot ,@lst)
+  (let ((left  (grep (lambda (n) (sort-function n pivot)) lst))         ; OPTIMIZE: I actually don't need to filter the whole list;
+	(right (grep (lambda (n) (not (sort-function n pivot))) lst)))  ; I just need to locate the right point and splice in the lst
+    (values
+     (append left
+	     (list pivot)
+	     right)
+     left
+     right)))
+
+
+(define (reduce func lst)
+  (define (loop acc loop-lst)
+    (if (null? loop-lst)
+	acc
+	(loop (func acc (car loop-lst)) (cdr loop-lst))))
+  (loop (car lst) (cdr lst)))
+
+(define (grep filter lst)
+  ;; filters a list. Returns '() if no elements satisfying filter are found
+  (define (loop acc loop-lst)
+    (cond 
+     ((null? loop-lst) (reverse acc))
+     ((filter (car loop-lst))
+      (loop (cons (car loop-lst) acc)
+	    (cdr loop-lst)))
+     (else (loop acc (cdr loop-lst)))))
+
+  (loop '() lst))
