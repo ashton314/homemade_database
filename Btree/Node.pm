@@ -70,6 +70,12 @@ sub to_string {
   return $acc;
 }
 
+sub to_hash {
+  my $self = shift;
+
+  return { keys   => $self->{keys},
+	   values => $self->{leaf} ? $self->{values} : [map { $_->to_hash } @{$self->{values}}] };
+}
 
 ##
 ## Secondary functions, called by the top-level methods with no

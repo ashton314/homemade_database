@@ -39,4 +39,9 @@ sub to_string {
   return $self->{head_node}->to_string();
 }
 
+sub to_hash {
+    my $self = shift;
+    return $self->{head_node}->to_hash;
+}
+
 1;
