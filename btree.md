@@ -53,9 +53,10 @@ sibbling. In the future this should be changed to save a little space.
 #### Index Nodes
 
 When inserting, I `shift` off `thing0`, and can then treat the index
-node like an index node. (I never should need to insert into the front
-of an index node: this can make the tree really broad, but can be
-fixed with coalescing the nodes.) After I'm done the insert, I just
+node like an index node. (+I never should need to insert into the
+front of an index node: this can make the tree really broad, but can
+be fixed with coalescing the nodes.+ Just kidding. This is a bug I'm
+working on as of 2016-12-09.) After I'm done the insert, I just
 `unshift` `thing0` back into the node.
 
 
