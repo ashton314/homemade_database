@@ -8,11 +8,18 @@ use Data::Dumper;
 
 my $tree0 = Btree->new();
 
+diag("Function tests");
+is_deeply([Btree::Node::insert_at(['b', 'c', 'd'], 'a', 0)], [qw(a b c d)], "insert_at: insertion at 0 correct");
+is_deeply([Btree::Node::insert_at(['a', 'c', 'd'], 'b', 1)], [qw(a b c d)], "insert_at: insertion at 1 correct");
+is_deeply([Btree::Node::insert_at(['a', 'b', 'd'], 'c', 2)], [qw(a b c d)], "insert_at: insertion at 2 correct");
+is_deeply([Btree::Node::insert_at(['a', 'b', 'c'], 'd', 3)], [qw(a b c d)], "insert_at: insertion at 3 correct");
+diag("END Function tests\n\nTree tests");
+
+
 $tree0->insert('a');
 $tree0->insert('b');
 is_deeply($tree0->{head_node}->{keys}, ['a', 'b'], 'keys inserted a, b correct');
 is_deeply($tree0->{head_node}->{values}, ['a', 'b'], 'values inserted a, b correct');
-
 
 
 $tree0 = Btree->new(max_degree => 2);

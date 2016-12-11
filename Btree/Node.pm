@@ -85,58 +85,16 @@ sub to_hash {
 sub _insert_into_leaf {
   my ($node, $key, $val) = @_;
 
-  if (scalar @{$node->{keys}} < $node->{max_degree}) { # room for insert?
-    my $bisection = find_bisect($key, $node->{keys});
+  my $bisection = find_bisect($key, $node->{keys});
 
-    my @left = (); my @right = (); my @vleft = (); my @vright = (); # This is some seriously disgusting code...
-    if ($bisection) {
-      @left   = @{$node->{keys}}[0..$bisection-1];
-      @right  = @{$node->{keys}}[$bisection..-1];
-      @vleft  = @{$node->{values}}[0..$bisection-1];
-      @vright = @{$node->{values}}[$bisection..-1];
-    }
-    else {
-      @left = ();
-      @right = @{$node->{keys}};
-      @vleft = ();
-      @vright = @{$node->{values}};
-    }
+  @{$node->{keys}} = insert_at($node->{keys}, $key, $bisection);
+  @{$node->{values}} = insert_at($node->{values}, $val, $bisection);
 
-    $node->{keys}   = [@left, $key, @right];
-    $node->{values} = [@vleft, $val, @vright];
-    return $node;
-  }
-  else {			# ok, we need to split
-    my $parent = defined $node->{parent} ? $node->{parent} :
-      Btree::Node->new(leaf       => 0,
-		       parent     => undef,
-		       values     => [$node],
-		       max_degree => $node->{max_degree});
+  # now see if we need to split
 
-    $node->{parent} = $parent;	# here we catch the case where we make a new parent
+  ## WORKING HERE
 
-    my $new_node = Btree::Node->new(leaf       => $node->{leaf},
-				    parent     => $parent,
-				    max_degree => $node->{max_degree});
-    $new_node->{next_leaf} = $node->{next_leaf};
-    $node->{next_leaf} = $new_node;
-
-    my $half_way = int $new_node->{max_degree} / 2;
-    $new_node->{keys} = [splice @{$node->{keys}}, $half_way];
-    $half_way++ unless $node->{leaf};
-    $new_node->{values} = [splice @{$node->{values}}, $half_way];
-
-    $parent->_insert_into_branch($new_node->{keys}->[0], $new_node);
-    $parent->insert($key, $val);
-    return $parent;
-  }
-}
-
-sub _insert_into_branch {
-  my ($node, $key, $value) = @_;
-  my $first_value = shift @{$node->{values}};
-  $node->_insert_into_leaf($key, $value);
-  unshift @{$node->{values}}, $first_value;
+  return $node;
 }
 
 sub _find_leaf {
@@ -159,6 +117,22 @@ sub _root {
 ##
 ## Okay, now we start with the helper functions
 ##
+
+sub insert_at {
+  # given ($array_ref, $value, $index), inserts $value at position
+  # $index, shifting the other values forward one space, and returning
+  # a new array
+
+  my @lst = @{ +shift };
+  my ($val, $idx) = @_;
+
+  if ($idx) {
+    return (@lst[0..$idx-1], $val, @lst[$idx..$#lst]);
+  }
+  else {
+    return ($val, @lst);
+  }
+}
 
 sub find_bisect {
   my ($datum, $array) = @_;
