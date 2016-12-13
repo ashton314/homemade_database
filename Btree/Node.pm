@@ -35,13 +35,13 @@ sub insert {
   $val //= $key;
 
   if ($self->{leaf}) {
-    my $node = _insert_into_leaf($self, $key, $val);
+    my $node = _insert($self, $key, $val);
     return $node->_root;
   }
   else {
     # TODO: write more succinctly
     my $chld = $self->_find_leaf($key);
-    my $node = _insert_into_leaf($chld, $key, $val);
+    my $node = _insert($chld, $key, $val);
     return $node->_root;
   }
 }
@@ -82,19 +82,56 @@ sub to_hash {
 ## argument checking, etc.
 ##
 
-sub _insert_into_leaf {
+sub _insert {
   my ($node, $key, $val) = @_;
 
   my $bisection = find_bisect($key, $node->{keys});
 
+  # TODO: I think this will suffice to split branch nodes. If this
+  # doesn't work, try separating the insertion routines for leaf and
+  # index nodes
+
   @{$node->{keys}} = insert_at($node->{keys}, $key, $bisection);
-  @{$node->{values}} = insert_at($node->{values}, $val, $bisection);
+  @{$node->{values}} = insert_at($node->{values}, $val, ($node->{leaf} ? $bisection : $bisection + 1));
 
   # now see if we need to split
 
-  ## WORKING HERE
+  $node->_split() if (scalar @{$node->{keys}} >= $node->{max_degree});
 
   return $node;
+}
+
+sub _split {
+  my ($node) = @_;
+
+  # okay, do we need to make a new parent?
+  unless (defined $node->{parent}) {
+    my $new_parent = Btree::Node->new(leaf	 => 0,
+				      parent	 => undef,
+				      values     => [$node],
+				      max_degree => $node->{max_degree});
+    $node->{parent} = $new_parent;
+  }
+
+  my $half_way = int $node->{max_degree} / 2;
+  my $new_node = Btree::Node->new(leaf	     => $node->{leaf},
+				  parent     => $node->{parent},
+				  next_leaf  => $node->{next_leaf},
+				  max_degree => $node->{max_degree},
+				  keys       => [splice @{$node->{keys}}, $half_way],
+				  values     => [splice @{$node->{values}}, ($node->{leaf} ? $half_way : $half_way + 1)]);
+
+  # print "SPLIT:\n";
+  # print Dumper($node);
+  # print Dumper($new_node);
+
+  $node->{next_leaf} = $new_node;
+
+  $node->{parent}->_insert($new_node->{keys}->[0], $new_node);
+  shift @{$new_node->{keys}} unless $new_node->{leaf};
+
+  # print "NEW PARENT: ";
+  # print Dumper($node->{parent});
 }
 
 sub _find_leaf {
