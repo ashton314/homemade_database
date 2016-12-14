@@ -39,25 +39,13 @@ things greater than or equal to `b`.
 I differentiate between leaf and index nodes (aka "branch nodes" here)
 by setting the `leaf` property in the `Btree::Node` object.
 
-#### Leaf Nodes
+I tried doing some fancy optimizations by splitting before inserting
+the datum, but I this complicated things a *lot*. I now insert the
+datum, then check if I need to split. This simplified structure solved
+all the problems I was having before.
 
-I don't use the `thing2` slot to link to the next sibbling
-node. Instead, I use the `next_leaf` property in the `Btree::Node`
-object to set the sibbling.
-
-*Caveat:* I set `next_leaf` during the splitting process, and I don't
-check if the node I am splitting is a leaf node or an index
-node. Hence, even index nodes have `next_leaf` set to their
-sibbling. In the future this should be changed to save a little space.
-
-#### Index Nodes
-
-When inserting, I `shift` off `thing0`, and can then treat the index
-node like an index node. (+I never should need to insert into the
-front of an index node: this can make the tree really broad, but can
-be fixed with coalescing the nodes.+ Just kidding. This is a bug I'm
-working on as of 2016-12-09.) After I'm done the insert, I just
-`unshift` `thing0` back into the node.
+If the node is an index node, I move half_way+1..$#vals into the new
+node, as opposed to half\_way..$#vals in a leaf node.
 
 
 Author

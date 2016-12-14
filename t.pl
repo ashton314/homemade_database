@@ -73,6 +73,21 @@ is_deeply($tree0->to_hash, { keys   => ['b'],
 
 tree_print_tall($tree0->{head_node});
 
+my $tree1 = Btree->new(max_degree => 4);
+
+$tree1->insert($_) foreach qw(a b c d);
+is_deeply($tree1->to_hash,
+	  { keys   => ['c'],
+	    values => [ { keys   => ['a', 'b'],
+			  values => ['a', 'b'] },
+			{ keys   => ['c', 'd'],
+			  values => ['c', 'd'] }
+		      ] },
+	  'Inserted a, b, c, and d correctly into tree, degree = 4');
+
+$tree1->insert($_) foreach 'a'..'z';
+tree_print_tall($tree1->{head_node});
+
 done_testing();
 
 sub tree_print_tall {
