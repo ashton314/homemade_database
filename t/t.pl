@@ -5,7 +5,7 @@ use warnings;
 no warnings "experimental::lexical_subs";
 use feature 'lexical_subs';	# because Lisp
 
-use Test::More;
+use Test::More tests => 9;
 
 BEGIN { push @INC, '../'; }
 
@@ -66,7 +66,7 @@ is_deeply($tree0->to_hash, { keys   => ['b'],
 							 values => ['c', 'd'] } ] } ] },
 	  'inserted ab correctly');
 
-tree_print_tall($tree0->{head_node});
+# tree_print_tall($tree0->{head_node});
 
 my $tree1 = Btree->new(max_degree => 4);
 
@@ -81,15 +81,13 @@ is_deeply($tree1->to_hash,
 	  'Inserted a, b, c, and d correctly into tree, degree = 4');
 
 $tree1 = Btree->new(max_degree => 4);
-foreach ('a'..'z') {
-  $tree1->insert($_);
-  system('clear');
-  print "INSERTED '$_':\n";
-  tree_print_tall($tree1->{head_node});
-  print "Press ENTER."; my $null = <STDIN>;
-}
-
-done_testing();
+# foreach ('a'..'z') {
+#   $tree1->insert($_);
+#   system('clear');
+#   print "INSERTED '$_':\n";
+#   tree_print_tall($tree1->{head_node});
+#   print "Press ENTER."; my $null = <STDIN>;
+# }
 
 sub tree_print_tall {
   my ($node, $indent) = @_;
