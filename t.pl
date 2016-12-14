@@ -85,8 +85,14 @@ is_deeply($tree1->to_hash,
 		      ] },
 	  'Inserted a, b, c, and d correctly into tree, degree = 4');
 
-$tree1->insert($_) foreach 'a'..'z';
-tree_print_tall($tree1->{head_node});
+$tree1 = Btree->new(max_degree => 4);
+foreach ('a'..'z') {
+  $tree1->insert($_);
+  system('clear');
+  print "INSERTED '$_':\n";
+  tree_print_tall($tree1->{head_node});
+  print "Press ENTER."; my $null = <STDIN>;
+}
 
 done_testing();
 
