@@ -2,10 +2,17 @@
 use strict;
 use warnings;
 
+no warnings "experimental::lexical_subs";
+use feature 'lexical_subs';	# because Lisp
+
 use Btree;
 use Test::More;
 use Data::Dumper;
-use Mojo::JSON;
+# use Mojo::JSON;
+
+# sub dense_hash {
+#   return Mojo::JSON::to_json(+shift);
+# }
 
 my $tree0 = Btree->new();
 
@@ -50,10 +57,6 @@ is_deeply($tree0->to_hash, { keys   => ['b', 'c'],
 					 { keys => ['c', 'd'], values => ['c', 'd'] } ] },
 	  'inserted aa correctly');
 
-print dense_hash($tree0->to_hash);
-
-print "\n"; print "-" x 80; print "\n";
-
 $tree0->insert('ab');
 is_deeply($tree0->to_hash, { keys   => ['b'],
 			     values => [ { keys   => ['aa'],
@@ -68,22 +71,41 @@ is_deeply($tree0->to_hash, { keys   => ['b'],
 							 values => ['c', 'd'] } ] } ] },
 	  'inserted ab correctly');
 
-# print Dumper($tree0->to_hash);
+tree_print_tall($tree0->{head_node});
+
 done_testing();
 
-sub dense_hash {
-  return Mojo::JSON::to_json(+shift);
+sub tree_print_tall {
+  my ($node, $indent) = @_;
+  $indent //= 0;
+  my @k = reverse @{$node->{keys}}; my @v = reverse @{$node->{values}};
+  my $h = int (scalar @v) / 2;
+
+  if ($node->{leaf}) {
+    local $" = ' ';
+    print '   ' x $indent . "--\n";
+    print '   ' x $indent . "$_\n" foreach @v;
+    print '   ' x $indent . "--\n";
+  }
+  else {
+    for my $i (0..$#k) {
+      tree_print_tall($v[$i], $indent + 1);
+      print '   ' x $indent . $k[$i] . "\n";
+    }
+    tree_print_tall($v[$#v], $indent + 1);
+  }
 }
 
-sub tree_print {
-  my $tree = shift;
-  my $node = $tree->{head_node};
+sub tree_print_wide {
+  my $node = shift;
 
-  sub line_print {
-    my $node = shift;
 
-    my @line = ();
+  my sub tree_walker {
+    my @vals = @{+shift};
+    my ($width, @acc) = tree_walker($node->{values});
+    ...;
   }
 
+  ...;
 
 }
