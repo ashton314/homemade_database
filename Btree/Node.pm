@@ -87,10 +87,6 @@ sub _insert {
 
   my $bisection = find_bisect($key, $node->{keys});
 
-  # TODO: I think this will suffice to split branch nodes. If this
-  # doesn't work, try separating the insertion routines for leaf and
-  # index nodes
-
   @{$node->{keys}} = insert_at($node->{keys}, $key, $bisection);
   @{$node->{values}} = insert_at($node->{values}, $val, ($node->{leaf} ? $bisection : $bisection + 1));
 
@@ -120,10 +116,6 @@ sub _split {
 				  max_degree => $node->{max_degree},
 				  keys       => [splice @{$node->{keys}}, $half_way],
 				  values     => [splice @{$node->{values}}, ($node->{leaf} ? $half_way : $half_way + 1)]);
-
-  # print "SPLIT:\n";
-  # print Dumper($node);
-  # print Dumper($new_node);
 
   $node->{next_leaf} = $new_node;
 
@@ -178,7 +170,8 @@ sub find_bisect {
   # given 'c' and [a b c d e f] returns 2
 
   # OPTIMIZE
-  return (scalar (grep { ($_ cmp $datum) == -1 } @{$array}));
+#  return (scalar (grep { ($_ cmp $datum) == -1 } @{$array}));
+  return (scalar (grep { ($_ cmp $datum) != 1 } @{$array}));
 }
 
 1;
