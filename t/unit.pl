@@ -10,12 +10,6 @@ use Btree;
 use Data::Dumper;
 
 diag('testing find_bisect');
-# is(Btree::Node::find_bisect('c', [qw(a b d e f)]), 2, 'find_bisect: nonexistent, middle of set');
-# is(Btree::Node::find_bisect('c', [qw(a b c d e f)]), 2, 'find_bisect: existent, middle of set');
-# is(Btree::Node::find_bisect('a', [qw(b c d e f)]), 0, 'find_bisect: nonexistent, beginning of set');
-# is(Btree::Node::find_bisect('a', [qw(a b c d e f)]), 0, 'find_bisect: existent, beginning of set');
-# is(Btree::Node::find_bisect('f', [qw(a b c d e)]), 5, 'find_bisect: nonexistent, end of set');
-# is(Btree::Node::find_bisect('f', [qw(a b c d e f)]), 5, 'find_bisect: existent, end of set');
 is(Btree::Node::find_bisect('c', [qw(a b d e f)]), 2, 'find_bisect: nonexistent, middle of set');
 is(Btree::Node::find_bisect('c', [qw(a b c d e f)]), 3, 'find_bisect: existent, middle of set');
 is(Btree::Node::find_bisect('a', [qw(b c d e f)]), 0, 'find_bisect: nonexistent, beginning of set');
