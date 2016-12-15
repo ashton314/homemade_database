@@ -170,7 +170,6 @@ sub find_bisect {
   # given 'c' and [a b c d e f] returns 2
 
   # OPTIMIZE
-  return (scalar (grep { ($_ cmp $datum) == -1 } @{$array}));
   return (scalar (grep { ($_ cmp $datum) != 1 } @{$array}));
 }
 
