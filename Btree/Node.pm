@@ -118,9 +118,12 @@ sub _split {
 				  values     => [splice @{$node->{values}}, ($node->{leaf} ? $half_way : $half_way + 1)]);
 
   $node->{next_leaf} = $new_node;
-
   $node->{parent}->_insert($new_node->{keys}->[0], $new_node);
-  shift @{$new_node->{keys}} unless $new_node->{leaf};
+
+  unless ($new_node->{leaf}) {
+    # map { $_->{parent} = $new_node } @{ $new_node->{values} };
+    shift @{$new_node->{keys}};
+  }
 
   # print "NEW PARENT: ";
   # print Dumper($node->{parent});
