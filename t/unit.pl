@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::More; # tests => 36;
+use Test::More tests => 79;
 
 BEGIN { push @INC, '../'; }
 
@@ -212,4 +212,4 @@ is_deeply($node1->{next_leaf}->{values}, [qw(c d)], '_split: right node4) has co
   ok((all { $_->{parent} eq $idx1 } @{$idx1->{values}}), "_split: idx1's children's link to parent correct");
 }
 
-done_testing();
+# done_testing();
