@@ -121,7 +121,7 @@ sub _split {
   $node->{parent}->_insert($new_node->{keys}->[0], $new_node);
 
   unless ($new_node->{leaf}) {
-    # map { $_->{parent} = $new_node } @{ $new_node->{values} };
+    map { $_->{parent} = $new_node } @{ $new_node->{values} };
     shift @{$new_node->{keys}};
   }
 
